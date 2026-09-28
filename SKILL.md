@@ -1,6 +1,6 @@
 ---
 name: context-engineering-collection
-description: A comprehensive collection of Agent Skills for context engineering, harness engineering, multi-agent architectures, and production agent systems. Use when building, optimizing, evaluating, or debugging agent systems that require effective context management and reliable operating loops.
+description: "A comprehensive collection of Agent Skills for context engineering, harness engineering, multi-agent architectures, and production agent systems. Use when building, optimizing, evaluating, or debugging agent systems that require effective context management and reliable operating loops."
 ---
 
 # Agent Skills for Context Engineering
@@ -33,6 +33,9 @@ Language models exhibit predictable degradation patterns as context grows: the "
 **Multi-Agent Coordination**
 Production multi-agent systems converge on three dominant patterns: supervisor/orchestrator architectures with centralized control, peer-to-peer swarm architectures for flexible handoffs, and hierarchical structures for complex task decomposition. The critical insight is that sub-agents exist primarily to isolate context rather than to simulate organizational roles.
 
+**Long-Horizon Prompting**
+Long-running autonomous agents and parallel orchestrations succeed or fail on the launch prompt. Pseudo-formal task briefs specify success predicates, non-counting outcomes, persistence rules with audit-gated return conditions, effort floors, diversity policies for parallel portfolios, and contamination guards, applying the discipline of formal verification linguistically to problems with no machine-checkable success condition.
+
 **Memory System Design**
 Memory architectures range from simple scratchpads to sophisticated temporal knowledge graphs. Vector RAG provides semantic retrieval but loses relationship information. Knowledge graphs preserve structure but require more engineering investment. The file-system-as-memory pattern enables just-in-time context loading without stuffing context windows.
 
@@ -61,6 +64,9 @@ Production agent evaluation requires deterministic checks and multi-dimensional 
 
 **Harness Engineering**
 Reliable autonomous agents need explicit operating loops around the model: locked metrics, editable surfaces, durable logs, novelty checks, rollback rules, and human approval boundaries. Harnesses prevent agents from weakening the evaluator, losing state across compaction, or turning ambiguous goals into unreviewable changes.
+
+**Self-Improvement Loops**
+When the harness itself becomes the optimization target, a different discipline applies: recursive self-improvement, meta-harness search, failure-driven bounded self-edits, evolutionary scaffold search, and context mechanism evolution. The controlling constraints are empirical two-split acceptance gates, filesystem experience archives with raw traces, runtime-enforced constraints outside every editable surface, and diversity preservation to prevent collapse.
 
 ### Development Methodology
 
@@ -93,6 +99,7 @@ Internal skills in this collection:
 - [context-degradation](skills/context-degradation/SKILL.md)
 - [context-compression](skills/context-compression/SKILL.md)
 - [multi-agent-patterns](skills/multi-agent-patterns/SKILL.md)
+- [long-horizon-prompting](skills/long-horizon-prompting/SKILL.md)
 - [memory-systems](skills/memory-systems/SKILL.md)
 - [tool-design](skills/tool-design/SKILL.md)
 - [filesystem-context](skills/filesystem-context/SKILL.md)
@@ -102,6 +109,7 @@ Internal skills in this collection:
 - [evaluation](skills/evaluation/SKILL.md)
 - [advanced-evaluation](skills/advanced-evaluation/SKILL.md)
 - [harness-engineering](skills/harness-engineering/SKILL.md)
+- [self-improvement-loops](skills/self-improvement-loops/SKILL.md)
 - [project-development](skills/project-development/SKILL.md)
 - [bdi-mental-states](skills/bdi-mental-states/SKILL.md)
 
@@ -115,6 +123,6 @@ External resources on context engineering:
 ## Skill Metadata
 
 **Created**: 2025-12-20
-**Last Updated**: 2026-05-15
+**Last Updated**: 2026-07-11
 **Author**: Agent Skills for Context Engineering Contributors
-**Version**: 2.3.0
+**Version**: 2.5.0
