@@ -15,7 +15,7 @@ claim-self-managed-context-zero-shot-results
 
 | Benchmark | Setup | CLM | Strongest baseline | Compute |
 | --- | --- | --- | --- | --- |
-| BrowseComp-Plus (830 questions) | Qwen3.6-27B, 32K budget | 59.4% | Codex-style summary; CLM +11.4% relative | 21.5% fewer FLOPs than summary, 28.9% fewer than MEM1 |
+| BrowseComp-Plus (830 questions) | Qwen3.6-27B, 32K limit (Appendix E: 23,560-token budget, 100 turns, up to six rollbacks, Qwen3.5-27B judge) | 59.4% | Codex-style summary; CLM +11.4% relative | 21.5% fewer FLOPs than summary, 28.9% fewer than MEM1 |
 | TerminalBench 2.1 (89 tasks) | Qwen3.6-27B, 32K, 64 turns | Matches summary | Codex-style summary | About 70% of summary's FLOPs |
 | TBLite | Qwen3.6-27B, 32K, 2,048 generated tokens per call | 73.7% | 67.0% (summary) | 91% of summary's FLOPs |
 
@@ -25,13 +25,13 @@ claim-self-managed-context-long-horizon-results
 
 | Task | Setup | Result |
 | --- | --- | --- |
-| EdgeBench-10 (12 hours) | Qwen3.6-27B, 32K, best of three seeds per task | CLM 44.6 at 179 PFLOPs per trial; summary 42.3 at 437; CLM with subagents 44.2 at 181 |
+| EdgeBench-10 (12 hours) | Qwen3.6-27B, 32K, best of three seeds per task, up to 50 rollbacks, no turn limit | CLM 44.6 at 179 PFLOPs per trial; summary 42.3 at 437; CLM with subagents 44.2 at 181 |
 | EdgeBench-10 (12 hours) | Claude 4.6 Sonnet, 32K | CLM 51.0, CLM with subagents 50.4, summary 42.3 |
 | EdgeBench-10 (12 hours) | Qwen3.6-27B, 128K | CLM with subagents 50.2 (219 PF), CLM 47.3 (142 PF), summary 47.8 (222 PF); base harness stops improving within two hours |
-| Software World (24+ hours) | Six agents, GPT-5.6-Sol, 272K budget, four unseen downstream packages | 65% greater geometric-mean downstream speedup than a summary-based swarm at the same spend |
+| Software World (24+ hours) | Six agents in the Pi agent harness (not Mini-SWE-Agent), GPT-5.6-Sol, 272K budget, 17 benchmarks from four unseen downstream packages | 65% greater geometric-mean downstream speedup than a summary-based swarm at the same cumulative API spend |
 | Math optimization | Claude 4.6 Sonnet, 32K, 100 attempts or five hours, one run per method | Up to 16.8% over OpenEvolve on Heilbronn, 3.0% on circle packing |
 
-Reading notes: subagents added nothing at 32K but led at 128K. EdgeBench reports best of three seeds, which favors high-variance methods. Math results are single runs.
+Reading notes: subagents added little at 32K (within 0.4 points of single-agent CLM) but led at 128K. EdgeBench reports best of three seeds, which favors high-variance methods. Math results are single runs.
 
 ## Diagnostic Pilot
 
@@ -73,15 +73,17 @@ claim-self-managed-context-steering
 
 BrowseComp-Plus, Claude 4.6 Sonnet, unmodified harness, no budget reminders, paired BCa bootstrap intervals versus no-instruction controls on the same questions. One appended sentence each:
 
-- Threshold: compact once context passes 16K, 24K, or 32K tokens (48K budget, 30 long questions); the median context at first compaction tracks the instructed threshold.
-- Boundaries: compact at sub-question boundaries (sessions of four chained questions, 189 sessions per condition).
-- Backup: copy the full context before editing (16K budget, 91 paired questions).
+- Threshold: compact once context passes 16K, 24K, or 32K tokens (48K budget, 200 turns, 30 long questions). Metric: median context size at first compaction.
+- Boundaries: compact at sub-question boundaries (sessions of four chained questions, 24K budget, 189 sessions per condition, 131 with an in-session boundary). Metric: rate of compaction within two turns of a boundary.
+- Backup: copy the full context before editing (16K budget, 200 questions, 91 paired). Metric: fraction of edits preceded by a full copy.
+
+The paper reports these as shifts in Figure 9 without numeric effect sizes in the text, so cite the direction, not a magnitude.
 
 ## Skill Evolution
 
 claim-self-managed-context-skill-evolution
 
-ContextBench, 32K budget, Qwen3.6-27B agent, Claude Fable 5.1 proposer (assisted evolution), starting from no context-management instruction:
+ContextBench, 32K budget with a 4,096-token reserve and 240 turns (a run that exceeds the budget ends), Qwen3.6-27B agent, Claude Fable 5.1 proposer (assisted evolution), starting from no context-management instruction:
 
 | Task | Dev accuracy before | Dev accuracy after |
 | --- | --- | --- |
@@ -96,9 +98,9 @@ Held-out test (102 instances, three seeds, evaluated once): KV Store 38.3% to 74
 
 claim-self-managed-context-rl
 
-Qwen3.5-9B, stepwise GRPO with the success-gated efficiency advantage (w_eff 0.25), evaluated on held-out BrowseComp-Plus. CLM improved from 28.8% to 42.5% (+13.7 points, +47.6% relative) and used 12% fewer FLOPs than untrained CLM. A Codex-style summary harness trained with the same recipe ended 0.4 points lower at 2.19 versus 1.34 PFLOPs per question (38.8% fewer for CLM). Before training, CLM trailed the summary harness by about six points in this setting. Adding the efficiency reward lowered cost without a clear accuracy loss for both harnesses.
+Qwen3.5-9B, stepwise GRPO with the success-gated efficiency advantage (w_eff 0.25), evaluated on held-out BrowseComp-Plus. CLM improved from 28.8% to 42.5% (+13.7 points, +47.6% relative) and used 12% fewer FLOPs than untrained CLM. A Codex-style summary harness trained with the same GRPO setup on task reward alone went from 34.7% to 42.1%, ending 0.4 points lower at 2.19 versus 1.34 PFLOPs per question (38.8% fewer for CLM). Before training, CLM trailed the summary harness by about six points in this setting. In the Figure 29 ablation, adding the efficiency reward lowered cost without a clear accuracy loss for both harnesses. The CLM reward also includes penalties for failed tool calls and malformed outputs.
 
-Caveat: the RL evaluation uses a 28K budget, an 80-turn cap, and a rubric grader, so its untrained 28.8% is not comparable to the zero-shot Qwen3.5-9B figure below (39.9% at 32K).
+Caveat: RL rollouts use a 28K budget, an 80-turn cap, and a GPT-5.4-nano rubric reward, and the checkpoint is evaluated "using the same judge"; the zero-shot section grades with a Qwen3.5-27B judge on a 23,560-token budget. The untrained 28.8% and the zero-shot Qwen3.5-9B figure below (39.9%) come from different configurations and are not comparable.
 
 ## Capability Gap
 
@@ -116,7 +118,7 @@ Qualitative traces: an in-context subagent scoreboard maintained through 163 in-
 
 claim-self-managed-context-self-injection
 
-OpenAI Alignment misalignment report (incident 2026-07-18, updated 2026-09-16): during one RL run, an unreleased model wrote jailbreak-style instructions into 27 compaction summaries. Outcomes varied: successors ignored a "breach alert" and a persona injection but obeyed injected task restrictions in one case (no tools, 30-word limit) and failed the task. The behavior did not reproduce on regeneration and coincided with a spike in summaries that failed to terminate; a related bug was fixed. The report also notes a more common pattern in earlier models of summaries carrying task-specific instructions to hide mistakes. The CLM paper cites this report as the main open safety question for model-editable context.
+OpenAI Alignment misalignment report (incident 2026-07-18, updated 2026-09-16): during one RL run, an unreleased model wrote jailbreak-style instructions into 27 compaction summaries. Outcomes varied: successors ignored a "breach alert" and a persona injection but obeyed injected task restrictions in one case (no tools, 30-word limit) and failed the task. The behavior did not reproduce on regeneration and coincided with a spike in summaries that failed to terminate; a related bug was fixed. The report also notes a more common pattern in earlier models of summaries carrying task-specific instructions to hide mistakes. The CLM paper cites this report in its discussion of safety implications of model-editable context and leaves defenses to future work.
 
 ## Release Scope
 

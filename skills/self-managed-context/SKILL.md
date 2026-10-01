@@ -39,7 +39,7 @@ Context-management designs differ in who decides the transition from one context
 | Level | Who decides | Examples | Characteristic failure |
 | --- | --- | --- | --- |
 | Harness-scheduled | Harness, at a threshold or every turn | Threshold summarization, per-turn state rewrite | Wrong timing; summaries lose or invent verbatim state |
-| Action-based | Model chooses when; harness defines what | Self-compaction tools, context folding, recursive sub-calls | Strategy bounded by the action set; offload without eviction |
+| Action-based | Model chooses when; harness defines what | Self-compaction tools, offload-and-retrieve tools, context folding | Strategy bounded by the action set; offload without eviction |
 | Model-controlled | Model chooses when and what, with general tools | Context as an editable file | Edit cache cost, budget blindness, persisting self-written instructions |
 
 A diagnostic built to isolate context management from reasoning (verbatim retention, in-place board updates, offload-and-evict) found no fixed strategy perfect even on simple synthetic tasks (claim-self-managed-context-contextbench-pilot). Each failure maps to a missing capability: summaries cannot hold exact values, append-only designs re-emit full state for every small update, and tool-based offloading cannot remove the original from the window.
@@ -63,14 +63,14 @@ Unrestricted edits are safe only because the safety contract lives outside the e
 | --- | --- | --- |
 | Pinned prefix | System and task messages are never rendered into the file; parse-back re-pins them from originals | The model rewriting its own instructions or task |
 | Role folding | Any parsed role except `assistant` becomes `user`; stray text becomes a user note | Model-minted system authority |
-| Edit gate | `fit`: growth allowed only if the result stays under budget; `shrink`: edits must reduce size | Edits that duplicate instead of replace |
-| Receipts | One line per turn: edit applied, applied but grew, rejected with the rule, or matched nothing | Silent no-op edits the model believes succeeded |
+| Edit gate | `fit`: growth allowed only if the result stays under budget; `shrink`: any growth is rejected | Edits that duplicate instead of replace |
+| Receipts | One line whenever a command changes or targets the file: edit applied, applied but grew, rejected with the rule, failed, or matched nothing | Silent no-op edits the model believes succeeded |
 | Free edit turns | A turn whose edit is applied, that prints nothing, and that exits 0 costs no task step | Housekeeping suppressed by step budgets |
 | Structural legality | Parse-back drops emptied turns and merges adjacent same-role turns; rollback never orphans a tool call from its result | Malformed message lists rejected by the API |
 
 ### Edit Position Sets the Cost
 
-Prefix caching reuses computation only up to the first changed token. An edit forces everything after it to be re-processed, so its cost scales with the text that follows it, not with the size of the edit. In an illustrative turn, an edit at the start of the context cost several times an append-only turn (claim-self-managed-context-edit-cost). Three operating rules follow and ship verbatim in the reference system prompt:
+Prefix caching reuses computation only up to the first changed token. An edit forces everything after it to be re-processed, so its cost scales with the text that follows it, not with the size of the edit. In an illustrative turn, an edit at the start of the context cost several times an append-only turn (claim-self-managed-context-edit-cost). Three operating rules follow, and the reference system prompt states all three:
 
 - **Batch.** One large compaction beats many small edits; each edit pays for its own tail.
 - **Mind the tail.** Do not compact a small early region under a long, still-useful tail. Wait and compact head and tail together, unless the limit is near.
@@ -80,7 +80,7 @@ Measure cost as prefix-reuse compute (decode, prefill, and re-prefill across the
 
 ### Budget Awareness Is Not Native
 
-Models estimate their own context length poorly at long lengths, often emitting recurring round-number guesses; token-count hints near the estimation point fix much of the error (claim-self-managed-context-length-awareness). A self-managing agent therefore needs a deterministic readout supplied by the harness:
+Models estimate their own context length poorly at long lengths, often emitting the same bucketed values regardless of actual length; token-count hints near the estimation point fix much of the error (claim-self-managed-context-length-awareness). A self-managing agent therefore needs a deterministic readout supplied by the harness:
 
 - Count tokens locally with a fixed tokenizer, calibrated to the server's reported prompt tokens with a clamped ratio so a gateway anomaly cannot corrupt the budget.
 - Show the current size on every tool result.
@@ -128,7 +128,7 @@ Self-management earns its complexity when at least one of these holds: the task 
 
 1. Define the pinned prefix (system prompt and task) and confirm it is excluded from the editable file and re-pinned on parse.
 2. Render the editable region with turn headers; make parse-back tolerant (fold unknown roles to user, keep stray text as a note, merge adjacent same-role turns, drop emptied turns).
-3. Add the edit gate and a one-line receipt per turn. Start with `fit`; switch to `shrink` only if edits grow context.
+3. Add the edit gate and a one-line receipt for every turn that changes or targets the file. Start with `fit`; switch to `shrink` if applied-but-grew receipts are frequent.
 4. Make pure edit turns free so the step budget does not suppress housekeeping.
 5. Add the deterministic readout, tiered nudges, adaptive urgent band, and rollback-and-retry.
 6. Put the batching and tail rules in the system prompt, with one worked edit command that locates text by header.
@@ -155,7 +155,7 @@ def step(messages, command, budget, gate="fit", protect=2):
     edited = read_file(MIRROR)
 
     applied = False
-    receipt = "context: NO change"
+    receipt = ""
     if edited.strip() != rendered.strip():
         candidate = parse_back(edited, prefix)         # non-assistant roles fold to user
         baseline = count(parse_back(rendered, prefix)) # same ruler: round-tripped original
@@ -166,9 +166,13 @@ def step(messages, command, budget, gate="fit", protect=2):
             messages, applied = candidate, True
             receipt = ("context: edit applied but GREW; replace, do not duplicate"
                        if grew else "context: edit applied")
+    elif MIRROR in command:                            # targeted the file, changed nothing
+        receipt = (f"context: NO change (exit {result.code})" if result.code
+                   else "context: NO change; edit matched nothing, target [[CTX_TURN n role=...]]")
 
-    free_turn = applied and result.stdout == "" and result.code == 0
-    observation = f"{result.output}\n{receipt}\n[context {count(messages)}/{budget} tokens]"
+    free_turn = applied and result.output == "" and result.code == 0  # stdout + stderr
+    readout = f"[context {count(messages)}/{budget} tokens]"
+    observation = "\n".join(part for part in (result.output, receipt, readout) if part)
     return messages + [tool_message(observation)], free_turn
 ```
 
@@ -211,7 +215,7 @@ def efficiency_advantage(group):
 
 1. Keep the system prompt and task pinned outside the editable region and re-pin them from originals on every parse.
 2. Fold every model-written role except `assistant` to `user`; never parse a `system` header into system authority.
-3. Return a receipt for every turn, including no-match and rejected edits.
+3. Return a receipt whenever a command changes or targets the context file, including no-match, failed, and rejected edits.
 4. Do not charge task steps for pure edit turns.
 5. Supply a deterministic token readout on every result; never rely on the model's own estimate.
 6. Keep low-fill nudges informational; reserve how-to instructions for mid and high fill.
