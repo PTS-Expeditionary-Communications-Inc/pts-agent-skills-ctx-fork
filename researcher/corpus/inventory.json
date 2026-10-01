@@ -512,7 +512,7 @@
           "volatility": "medium"
         },
         {
-          "digest": "sha256:dd7a8390928e2b5e5bb5c81124a9a0d16ed57da92be6614ab76c9c259477574a",
+          "digest": "sha256:247dcdb24b6fe67694e83e39d99feab6226bd57570c798b91f8356d842089c50",
           "id": "claim-self-managed-context-harness-defaults",
           "line": 33,
           "owning_skill": "self-managed-context",
@@ -540,7 +540,7 @@
           "volatility": "high"
         },
         {
-          "digest": "sha256:57b204e7f2bb9fab69fd78456e3f1f8fe2f00dafa4741c0614b232dc7a19f2c1",
+          "digest": "sha256:1450e8429ef2ae580d7347549b89f5b17e2301f4bda41dba1898a1b544731aed",
           "id": "claim-self-managed-context-rl",
           "line": 36,
           "owning_skill": "self-managed-context",
@@ -2310,7 +2310,7 @@
           "path": "skills/self-improvement-loops/SKILL.md"
         },
         {
-          "digest": "sha256:a74ea58260b0fa66c3dc932dd6789768a84faa52fa11d1a93734ffeb09941f93",
+          "digest": "sha256:0b077da6d7725af414a42a627321a11ce9ffc90b4c3e583a1ae126968a8bbd26",
           "id": "self-managed-context",
           "path": "skills/self-managed-context/SKILL.md"
         },
@@ -2903,12 +2903,12 @@
     ]
   },
   "repository_revision": {
-    "digest": "sha256:98255e68db459ca146f90e7be175258af81fe910cf9c54e4b598291cf82c23ec",
+    "digest": "sha256:dcbac67436e1252ff10fcdcc5ad1649c77ff0669837f42b04d1abea9c471d36c",
     "git_commit_excluded_to_avoid_self_reference": true,
     "kind": "canonical_source_tree"
   },
   "schema_version": "1.0.0",
-  "source_tree_digest": "sha256:98255e68db459ca146f90e7be175258af81fe910cf9c54e4b598291cf82c23ec",
+  "source_tree_digest": "sha256:dcbac67436e1252ff10fcdcc5ad1649c77ff0669837f42b04d1abea9c471d36c",
   "sources": [
     {
       "digest": "sha256:f924467d535c67ddc43c747d6b3361469414ca8c5d15c2e8b406d4bbb7c7ca1e",
@@ -3046,9 +3046,9 @@
       "size_bytes": 611
     },
     {
-      "digest": "sha256:4c868033e06c579f6c23bed9fbb3f567d9e69011ff1ad825309e3bf9d1bd2fc1",
+      "digest": "sha256:f91d0d9e5a677f3eec1611bfa9eeb290605af4d2e70d45d7d60a7f3403ae18be",
       "path": "researcher/claims/index.jsonl",
-      "size_bytes": 24339
+      "size_bytes": 24429
     },
     {
       "digest": "sha256:75e67fca545bef8fa13d7cf5a20af6053901c0bc35e41cba330c78f6816b1795",
@@ -3241,12 +3241,12 @@
       "size_bytes": 2240
     },
     {
-      "digest": "sha256:4360591228cda2c33403813e46b65dce63681a9de90abe224be20f100e3f56be",
+      "digest": "sha256:d748cbb2a1aa79a9db733f9590614d627459558345a139ebbc12682a1474bfd3",
       "path": "researcher/schemas/generated/current-artifacts-report.json",
       "size_bytes": 603
     },
     {
-      "digest": "sha256:1e2a8929590336732795d8431d1ec456e795322e542aa95ad94b333ddab587d5",
+      "digest": "sha256:c8624218525c2297dcfaf733bc90ceb0cea2f31f20b3d9f0f7536bc0e1849557",
       "path": "researcher/schemas/generated/migration-dry-run.json",
       "size_bytes": 37723
     },
@@ -3541,9 +3541,9 @@
       "size_bytes": 22494
     },
     {
-      "digest": "sha256:a74ea58260b0fa66c3dc932dd6789768a84faa52fa11d1a93734ffeb09941f93",
+      "digest": "sha256:0b077da6d7725af414a42a627321a11ce9ffc90b4c3e583a1ae126968a8bbd26",
       "path": "skills/self-managed-context/SKILL.md",
-      "size_bytes": 23606
+      "size_bytes": 24111
     },
     {
       "digest": "sha256:14f5a12b69113bc6450da69c5b4d408fe91601832ab1055ae25311339c84a06b",

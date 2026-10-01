@@ -296,12 +296,12 @@
     {
       "kind": "LegacyClaim",
       "legacy_key": "claim-self-managed-context-harness-defaults",
-      "new_digest": "sha256:2e6543aa169103acfaf05eac87dd2b71ce3eadc6cbae66e469e942b3dc7ec87a",
+      "new_digest": "sha256:2407f9013e52cada5fb850cb917fedced1fda927f9a0949ee7b01601276e671d",
       "new_id": "rec_8633a8f6-1d91-55f7-adbf-0d249f4a7297",
       "rollback": "pass",
-      "source_bytes_digest": "sha256:d690ab5369067655462dc8905f15608362dd91de96adb7803c70fbc0cf5b179a",
+      "source_bytes_digest": "sha256:2a4e6fee6307a5d51d224c0ece8522f2edcf4c9c62d25f434f033f95dda355af",
       "source_path": "researcher/claims/index.jsonl",
-      "source_record_digest": "sha256:dd7a8390928e2b5e5bb5c81124a9a0d16ed57da92be6614ab76c9c259477574a"
+      "source_record_digest": "sha256:247dcdb24b6fe67694e83e39d99feab6226bd57570c798b91f8356d842089c50"
     },
     {
       "kind": "LegacyClaim",
@@ -336,12 +336,12 @@
     {
       "kind": "LegacyClaim",
       "legacy_key": "claim-self-managed-context-rl",
-      "new_digest": "sha256:88577de131f0963ed11fcdefdf0d82f8db39b0275a0777a0de13baeab9870d5f",
+      "new_digest": "sha256:4d22054f642f7f3a191549dc18a5e4ff812bc63dda6d276debb9de3db8e58b17",
       "new_id": "rec_0e1e93d3-4c0c-5934-ad03-6b4fceabc4b9",
       "rollback": "pass",
-      "source_bytes_digest": "sha256:832307b8c8e6fcc3e7101938622670d0d7ffcd76e67d9b4da47e6b16b3325bba",
+      "source_bytes_digest": "sha256:a4a3006b9a11fa3dd7b988abd476d9c85bf60c7bed0e87a5063e438762eb2518",
       "source_path": "researcher/claims/index.jsonl",
-      "source_record_digest": "sha256:57b204e7f2bb9fab69fd78456e3f1f8fe2f00dafa4741c0614b232dc7a19f2c1"
+      "source_record_digest": "sha256:1450e8429ef2ae580d7347549b89f5b17e2301f4bda41dba1898a1b544731aed"
     },
     {
       "kind": "LegacyClaim",
@@ -688,6 +688,6 @@
   "mode": "dry-run",
   "quarantined": [],
   "quarantined_count": 0,
-  "report_digest": "sha256:ac19ebf0cd8308f79c101b953e11e6fded2674c140e9d073bdab1f8764e412cf",
+  "report_digest": "sha256:409adeebe7b2eaf62bd984d825203af68c6880662b26b0df9e796dd94ddc235d",
   "schema_version": "1.0.0"
 }
